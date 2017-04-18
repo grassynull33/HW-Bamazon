@@ -51,7 +51,43 @@ inquirer.prompt([
       }
     });
   }  else if (answers.option === "Add to Inventory") {
+    connection.query("SELECT * FROM products", function(err, res) {
+      if (err) throw err;
 
+      inquirer.prompt([
+        {
+          type: "input",
+          name: "itemId",
+          message: "Enter the ID number of the item you'd like to add more of:",
+          validate: function(value) {
+            if(isNaN(value) === false && value > 0 && value < res.length + 1) {
+              return true;
+            } else {
+              return false;
+            }
+          }
+        },
+        {
+          type: "input",
+          name: "quantityAdded",
+          message: "How many would you like to add?",
+          validate: function(value) {
+            if(isNaN(value) === false && value > 0) {
+              return true;
+            } else {
+              return false;
+            }
+          }
+        }
+      ]).then(function(answers) {
+        var itemId = parseFloat(answers.itemId);
+        var quantityAdded = parseFloat(answers.quantityAdded);
+
+        connection.query("UPDATE products SET stock_quantity = stock_quantity + ? WHERE item_id = ?", [quantityAdded, itemId], function(err, res) {});
+
+        console.log(res[itemId - 1].item_id + " | " + res[itemId - 1].product_name + " | $" + res[itemId - 1].price + " | In Stock: " + res[itemId - 1].stock_quantity + " (+" + quantityAdded + ") = " + (res[itemId - 1].stock_quantity + quantityAdded));
+      });
+    });
   }  else if (answers.option === "Add New Product") {
 
   }
