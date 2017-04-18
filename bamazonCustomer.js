@@ -19,7 +19,7 @@ connection.query("SELECT * FROM products", function(err, res) {
   console.log("WELCOME TO YOON'S STORE! ITEMS FOR SALE:");
   
   for(var i = 0; i < res.length; i++) {
-  	console.log(res[i].item_id + " | " + res[i].product_name + " | $" + res[i].price);
+  	console.log(res[i].item_id + " | " + res[i].product_name + " | $" + res[i].price.toFixed(2));
   }
 
   inquirer.prompt([
