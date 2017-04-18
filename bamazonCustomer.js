@@ -55,8 +55,8 @@ connection.query("SELECT * FROM products", function(err, res) {
   		console.log("Insufficient quantity!");
   	} else {
   		connection.query("UPDATE products SET stock_quantity = stock_quantity - ? WHERE item_id = ?", [quantityDemanded, itemId], function(err, res) {});
-  		
-  		console.log("Your total is $" + (res[itemId - 1].price * quantityDemanded));
+
+  		console.log("Your total is $" + (res[itemId - 1].price * quantityDemanded).toFixed(2));
   	}
   });
 });
