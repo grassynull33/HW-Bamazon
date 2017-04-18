@@ -39,7 +39,17 @@ inquirer.prompt([
       }
     });
   } else if (answers.option === "View Low Inventory") {
+    connection.query("SELECT * FROM products WHERE stock_quantity < ?", [5], function(err, res) {
+      if (err) throw err;
 
+      console.log("Products with Low Inventory (< 5):");
+
+      for(var i = 0; i < res.length; i++) {
+        if(res[i].stock_quantity < 5) {
+          console.log(res[i].item_id + " | " + res[i].product_name + " | $" + res[i].price + " | In Stock: " + res[i].stock_quantity);
+        }
+      }
+    });
   }  else if (answers.option === "Add to Inventory") {
 
   }  else if (answers.option === "Add New Product") {
