@@ -1,6 +1,8 @@
+// Dependencies
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 
+// MySQL connection set-up
 var connection = mysql.createConnection({
   host: "localhost",
   port: 3306,
@@ -13,7 +15,9 @@ var connection = mysql.createConnection({
   database: "Bamazon"
 });
 
+// Main function
 var manageInit = function() {
+  // Menu to select from 4 functions
   inquirer.prompt([
     {
       type: "list",
@@ -39,9 +43,11 @@ var manageInit = function() {
           }
         }
 
+        // Loops back to the beginning of the app so that user can use again
         manageInit();
       });
     } else if (answers.option === "View Low Inventory") {
+      // Only returns products with stock quantity less than 5
       connection.query("SELECT * FROM products WHERE stock_quantity < ?", [5], function(err, res) {
         if (err) throw err;
 
@@ -59,6 +65,7 @@ var manageInit = function() {
       connection.query("SELECT * FROM products", function(err, res) {
         if (err) throw err;
 
+        // After getting available products, ask user which product they'd like to add inventory for and how many
         inquirer.prompt([
           {
             type: "input",
@@ -88,6 +95,7 @@ var manageInit = function() {
           var itemId = parseFloat(answers.itemId);
           var quantityAdded = parseFloat(answers.quantityAdded);
 
+          // Update item with stock quantity specified
           connection.query("UPDATE products SET stock_quantity = stock_quantity + ? WHERE item_id = ?", [quantityAdded, itemId], function(err, res) {
             if (err) throw err;
           });
@@ -99,6 +107,7 @@ var manageInit = function() {
       });
     }  else if (answers.option === "Add New Product") {
       connection.query("SELECT * FROM products", function(err, res) {
+        // Prompt user for information for new product
         inquirer.prompt([
           {
             type: "input",
@@ -140,6 +149,7 @@ var manageInit = function() {
           var price = parseFloat(answers.price).toFixed(2);
           var stockQuantity = answers.stockQuantity;
 
+          // Add new entry into database
           connection.query("INSERT INTO products (product_name, department_name, price, stock_quantity) VALUES (?, ?, ?, ?)", [productName, departmentName, price, stockQuantity], function(err, res) {
             if (err) throw err;
           });
@@ -153,4 +163,5 @@ var manageInit = function() {
   });
 };
 
+// Initialize
 manageInit();

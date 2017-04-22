@@ -1,8 +1,11 @@
+// Dependencies
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 
+// Global variable to keep track of Purchase Running Total
 var runningTotal = 0;
 
+// Set up for MySQL database connection
 var connection = mysql.createConnection({
   host: "localhost",
   port: 3306,
@@ -15,12 +18,15 @@ var connection = mysql.createConnection({
   database: "Bamazon"
 });
 
+// Main function for application
 var shopInit = function() {
+	// First step of displaying available items
 	connection.query("SELECT * FROM products", function(err, res) {
 	  if (err) throw err;
 
 	  console.log("WELCOME TO YOON'S STORE! ITEMS FOR SALE:");
 	  
+	  // Runs through each item in database
 	  for(var i = 0; i < res.length; i++) {
 	  	console.log(res[i].item_id + " | " + res[i].product_name + " | $" + res[i].price.toFixed(2));
 	  }
@@ -54,9 +60,11 @@ var shopInit = function() {
 	  	var itemId = answers.itemId;
 	  	var quantityDemanded = answers.quantityDemanded;
 
+	  	// itemId different from index of item in array
 	  	if(quantityDemanded > res[itemId - 1].stock_quantity) {
 	  		console.log("Insufficient quantity!");
 
+	  		// Loop the app so that user can attempt another purchase
 	  		inquirer.prompt([
 	  			{
 	  				type: "confirm",
@@ -69,14 +77,17 @@ var shopInit = function() {
 	  			}
 	  		});
 	  	} else {
+	  		// If quantity to purchase is valid, then update database with new stock quantity
 	  		connection.query("UPDATE products SET stock_quantity = stock_quantity - ? WHERE item_id = ?", [quantityDemanded, itemId], function(err, res) {});
 
+	  		// Shows purchase total and running total of session's order
 	  		console.log("Your purchase total is $" + (res[itemId - 1].price * quantityDemanded).toFixed(2));
 
 	  		runningTotal = runningTotal + (res[itemId - 1].price * quantityDemanded);
 
 	  		console.log("Your running total is $" + runningTotal.toFixed(2));
 
+	  		// Option to make another purchase after successful purchase
 	  		inquirer.prompt([
 	  			{
 	  				type: "confirm",
@@ -93,4 +104,5 @@ var shopInit = function() {
 	});
 };
 
+// Initialize
 shopInit();
